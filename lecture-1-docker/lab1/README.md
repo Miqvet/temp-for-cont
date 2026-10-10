@@ -232,3 +232,46 @@ docker run -d \
 | **docker run** | `docker run -d --name lab1-inspect --memory=128m --cpus=0.5 --pids-limit=64 ...` | создаёт и запускает контейнер с заданными resource limits и security options |
 | **docker inspect** | `docker inspect lab1-inspect`<br>`docker inspect -f '{{.State.Pid}}' lab1-inspect` | показывает конфигурацию и состояние контейнера; через `State.Pid` позволяет найти host PID процесса для проверки `/proc`, namespaces и cgroup |
 | **busybox** | `docker run --network container:<target> --pid container:<target> busybox:1.36.1 sh -c '...'` | минимальный helper image с shell и файловыми утилитами для проверки writable layer и сохранения данных в volume |
+
+### Part 7 — gVisor: когда обычного контейнера недостаточно
+
+Запустили тот же образ с runtime `runsc` и сравнили его с обычным Docker-контейнером и запуском через `mydocker.sh`.
+
+| Вариант | Механизм изоляции | Что общее с host |
+|:--------|:------------------|:-----------------|
+| `mydocker.sh` | namespaces, cgroups, capabilities и seccomp, настроенные вручную | host kernel и его системные механизмы |
+| обычный `docker run` | те же kernel-механизмы, но настроенные Docker | host kernel; системные вызовы приложения обслуживает host kernel |
+| `docker run --runtime=runsc` | namespaces/cgroups Docker и userspace kernel gVisor (Sentry), перехватывающий системные вызовы приложения | host kernel по-прежнему запускает sandbox и управляет CPU, памятью и устройствами |
+
+Проверка runtime и виртуализированного kernel interface:
+
+```bash
+uname -a
+docker run --rm --network=none busybox:1.36.1 uname -a
+docker run --rm --runtime=runsc --network=none busybox:1.36.1 uname -a
+```
+
+Запуск API под gVisor:
+
+```bash
+docker run -d --name lab1-gvisor \
+  --runtime=runsc \
+  --publish 8081:8080 \
+  lab1-api:multi
+
+curl http://localhost:8081/health
+docker inspect lab1-gvisor --format '{{.HostConfig.Runtime}}'
+```
+
+### Демонстрация
+
+<img src="./scrs/part7_01.png" width=100><br>
+
+### Выводы
+
+- gVisor предоставляет приложению собственное userspace-представление kernel interface, поэтому `uname` внутри sandbox отличается от host kernel.
+- gVisor не является полноценной виртуальной машиной: он не запускает отдельную guest OS на виртуальном оборудовании, а сам работает как процесс поверх host kernel.
+- В обычном контейнере namespaces изолируют процессы, mount points и сеть, но системные вызовы приложения всё равно обрабатывает host kernel.
+- Поэтому host kernel остаётся фундаментальной границей изоляции обычного контейнера: его уязвимость потенциально может затронуть host или другие контейнеры.
+- gVisor уменьшает прямую поверхность атаки на host kernel, перенося значительную часть реализации Linux API в userspace kernel, но не устраняет использование host kernel полностью.
+
