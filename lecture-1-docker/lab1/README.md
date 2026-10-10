@@ -235,7 +235,7 @@ docker run -d \
 
 ### Part 7 — gVisor: когда обычного контейнера недостаточно
 
-Запустили тот же образ с runtime `runsc` и сравнили его с обычным Docker-контейнером и запуском через `mydocker.sh`.
+Запустили тот же образ с runtime `runsc`[^gvisor] и сравнили его с обычным Docker-контейнером и запуском через `mydocker.sh`.
 
 | Вариант | Механизм изоляции | Что общее с host |
 |:--------|:------------------|:-----------------|
@@ -265,7 +265,7 @@ docker inspect lab1-gvisor --format '{{.HostConfig.Runtime}}'
 
 ### Демонстрация
 
-<img src="./scrs/part7_01.png" width=100><br>
+<img src="./scrs/part7-01.png" width=300><br>
 
 ### Выводы
 
@@ -275,3 +275,4 @@ docker inspect lab1-gvisor --format '{{.HostConfig.Runtime}}'
 - Поэтому host kernel остаётся фундаментальной границей изоляции обычного контейнера: его уязвимость потенциально может затронуть host или другие контейнеры.
 - gVisor уменьшает прямую поверхность атаки на host kernel, перенося значительную часть реализации Linux API в userspace kernel, но не устраняет использование host kernel полностью.
 
+[^gvisor]: [gVisor](https://gvisor.dev/docs/) общими словами
