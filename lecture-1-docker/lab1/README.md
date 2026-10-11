@@ -237,6 +237,8 @@ docker run -d \
 
 Запустили тот же образ с runtime `runsc`[^gvisor] и сравнили его с обычным Docker-контейнером и запуском через `mydocker.sh`.
 
+[^gvisor]: [gVisor](https://gvisor.dev/docs/) общими словами
+
 | Вариант | Механизм изоляции | Что общее с host |
 |:--------|:------------------|:-----------------|
 | `mydocker.sh` | namespaces, cgroups, capabilities и seccomp, настроенные вручную | host kernel и его системные механизмы |
@@ -275,4 +277,74 @@ docker inspect lab1-gvisor --format '{{.HostConfig.Runtime}}'
 - Поэтому host kernel остаётся фундаментальной границей изоляции обычного контейнера: его уязвимость потенциально может затронуть host или другие контейнеры.
 - gVisor уменьшает прямую поверхность атаки на host kernel, перенося значительную часть реализации Linux API в userspace kernel, но не устраняет использование host kernel полностью.
 
-[^gvisor]: [gVisor](https://gvisor.dev/docs/) общими словами
+### Part 8 — Monitoring
+
+Для мониторинга контейнера использовали связку `cAdvisor → Prometheus → Grafana`.
+cAdvisor считывает показатели контейнеров из cgroups и экспортирует их в формате Prometheus;
+Prometheus хранит временные ряды, а Grafana используется для построения dashboard.
+
+Для сбора memory, CPU и process-метрик cAdvisor был запущен с параметром:
+
+```text
+--enable_metrics=cpu,cpuLoad,memory,process
+```
+
+<details>
+
+<summary>Команды для запуска стека мониторинга</summary>
+
+```bash
+# cAdvisor:
+docker run -d \           
+  --name lab1-cadvisor \
+  --publish 8088:8080 \
+  --volume=/:/rootfs:ro \
+  --volume=/var/run:/var/run:ro \
+  --volume=/sys:/sys:ro \
+  --volume=/var/lib/docker:/var/lib/docker:ro \
+  --pid=host \
+  --privileged \
+  gcr.io/cadvisor/cadvisor:v0.49.2 \
+  --enable_metrics=cpu,cpuLoad,memory,process
+
+# Prometheus:
+docker run -d \
+  --name lab1-prometheus \
+  --publish 9090:9090 \
+  --add-host=host.docker.internal:host-gateway \
+  --volume "$PWD/deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
+  prom/prometheus
+
+# Grafana:
+docker volume create lab1-grafana-data
+
+docker run -d \        
+  --name lab1-grafana \   
+  --publish 3000:3000 \
+  --add-host=host.docker.internal:host-gateway \
+  --volume lab1-grafana-data:/var/lib/grafana \
+  grafana/grafana
+```
+
+</details>
+
+В результате получили дашборд с тремя панелями, отображающими ключевые метрики:
+
+| Ресурс | Метрики и описание | Сигнал для alert | Демонстрация |
+|:-------|:-------------------|:-----------------|:-------------|
+| **Memory** | `container_memory_working_set_bytes` — текущее потребление памяти;<br>`container_spec_memory_limit_bytes` — лимит памяти;<br>`working_set / memory_limit` — доля использованного лимита | usage `> 85%` от `memory.max` — возможная утечка или чрезмерное потребление памяти | <img src="./scrs/part8-02-1.png" width=300> |
+| **CPU** | `container_cpu_usage_seconds_total` — фактически использованное CPU-время;<br>`container_spec_cpu_quota / container_spec_cpu_period` — квота CPU;<br>`container_cpu_cfs_throttled_periods_total / container_cpu_cfs_periods_total` — доля периодов с throttling;<br>CPU-time ratio — доля запрошенного CPU-времени, не предоставленного из-за квоты | throttled ratio `> 10%` — контейнер регулярно упирается в CPU quota, что может увеличивать latency | <img src="./scrs/part8-02-2.png" width=300> |
+| **PIDs** | `container_threads` — текущее количество tasks/threads;<br>`container_threads_max` — максимально разрешённое количество tasks;<br>`threads / threads_max` — доля использованного PID-бюджета;<br>cgroup `pids.events:max` — число отказов при достижении лимита | usage `> 80%` от `pids.max` — риск отказа `fork()`/`clone()` при создании новых tasks | <img src="./scrs/part8-02-3.png" width=300> |
+
+На основании этих метрик были сконфигурированы алерты (логика их срабатывания также приведена в таблице).
+
+В отличие от CPU, controller `pids` не throttles уже запущенные процессы: при достижении `pids.max` новые вызовы `fork()`/`clone()` завершаются ошибкой.
+Поэтому для PIDs отслеживаются только текущее потребление, лимит и события достижения лимита.
+
+#### Наблюдения
+
+- CPU usage показывает фактическое потребление, а throttling показывает, что cgroup уже ограничивается по квоте.
+- Для CPU usage и quota использовали шкалу в cores; throttled CPU-time ratio — отдельную шкалу `0.0–1.0`, которая показывает какой процент всего запрашиваемого времени CPU был throttled.
+- Для PIDs cAdvisor экспортировал `container_threads` и `container_threads_max` — чтобы получить эти значение, нужно было запустить cAdvisor с параметром `--enable_metrics=process` (по умолчанию, эти метрики не собирались).
+- Набор метрик cAdvisor зависит от параметра `--enable_metrics`; если включить только `process`, CPU и memory-метрики отсутствуют.
+
