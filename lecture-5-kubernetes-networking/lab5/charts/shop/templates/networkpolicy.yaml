@@ -1,0 +1,164 @@
+{{- if .Values.networkPolicy.enabled }}
+# Zero-trust access matrix for the shop namespace (README Part 3-4):
+#   client  -> api       allowed (NodePort entry, any source)
+#   api     -> postgres  allowed
+#   worker  -> postgres  allowed
+#   everything else, incl. a stray pod -> postgres  denied
+# Plus DNS, which every pod needs regardless of the matrix above.
+{{- $fault := .Values.networkPolicy.fault.inject }}
+{{- $workerIngressLabel := .Values.networkPolicy.worker.labelValue }}
+{{- $postgresIngressPort := .Values.networkPolicy.postgres.port }}
+{{- $apiIngressPort := .Values.networkPolicy.api.port }}
+{{- $renderDNS := true }}
+{{- if eq $fault "wrong-worker-label" }}
+{{- $workerIngressLabel = printf "%s-typo" .Values.networkPolicy.worker.labelValue }}
+{{- else if eq $fault "wrong-postgres-port" }}
+{{- $postgresIngressPort = 5433 }}
+{{- else if eq $fault "disable-dns" }}
+{{- $renderDNS = false }}
+{{- else if eq $fault "wrong-api-port" }}
+{{- $apiIngressPort = 8081 }}
+{{- end }}
+
+# 1. default-deny: with no other policy selecting a pod, Kubernetes allows
+# everything. This flips the default for every pod in the namespace to deny
+# both directions; the policies below carve out exactly the matrix's "allowed"
+# cells, nothing more.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "shop.fullname" . }}-default-deny
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+
+{{- if $renderDNS }}
+---
+# 2. DNS: Services can't find each other by name without it. Every pod in
+# this namespace needs egress to CoreDNS on port 53 — this is the one route
+# that applies regardless of which app a pod belongs to.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "shop.fullname" . }}-allow-dns
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.dns.namespace }}
+          podSelector:
+            matchLabels:
+              {{ .Values.networkPolicy.dns.podLabelKey }}: {{ .Values.networkPolicy.dns.podLabelValue }}
+      ports:
+        - protocol: UDP
+          port: {{ .Values.networkPolicy.dns.port }}
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.dns.port }}
+{{- end }}
+
+---
+# 3. client -> api: the NodePort entry point. The client lives outside the
+# cluster (or at least outside this namespace's pods), so this rule has no
+# `from` selector at all — an omitted `from` matches every source, only the
+# port is restricted. This is the only intentionally "open" ingress rule in
+# the whole matrix.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "shop.fullname" . }}-allow-client-to-api
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{ .Values.networkPolicy.api.labelKey }}: {{ .Values.networkPolicy.api.labelValue }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: {{ $apiIngressPort }}
+
+---
+# 4. api, worker -> postgres (egress side): a single policy selecting both
+# app pods by label, egress restricted to postgres's port only.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "shop.fullname" . }}-allow-egress-to-postgres
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: {{ .Values.networkPolicy.api.labelKey }}
+        operator: In
+        values:
+          - {{ .Values.networkPolicy.api.labelValue }}
+          - {{ .Values.networkPolicy.worker.labelValue }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              {{ .Values.networkPolicy.postgres.labelKey }}: {{ .Values.networkPolicy.postgres.labelValue }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.postgres.port }}
+
+---
+# 5. postgres (ingress side): only api and worker may reach it — this is the
+# rule that keeps "a stray pod -> postgres" denied, since nothing else in the
+# matrix grants ingress to postgres's pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "shop.fullname" . }}-allow-ingress-to-postgres
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{ .Values.networkPolicy.postgres.labelKey }}: {{ .Values.networkPolicy.postgres.labelValue }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: {{ .Values.networkPolicy.api.labelKey }}
+                operator: In
+                values:
+                  - {{ .Values.networkPolicy.api.labelValue }}
+                  - {{ $workerIngressLabel }}
+      ports:
+        - protocol: TCP
+          port: {{ $postgresIngressPort }}
+    # Not in lab.md's 3-bullet example matrix, but discovered empirically
+    # (README Part 5): CNPG's own operator polls each instance's management
+    # API (port 8000) to report Cluster status, and Prometheus scrapes its
+    # metrics (port 9187) via the auto-created PodMonitor. Without this, the
+    # app-level matrix is green but the operator logs a constant
+    # "Cannot extract Pod status: dial tcp ...:8000: i/o timeout" and the
+    # Cluster's status field is permanently stale — a second, quieter kind of
+    # "orders stop going through" that the matrix script alone won't catch.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+      ports:
+        - protocol: TCP
+          port: 8000
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9187
+{{- end }}

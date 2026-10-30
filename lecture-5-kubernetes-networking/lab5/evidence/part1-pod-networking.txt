@@ -1,0 +1,20 @@
+=== Pod eth0 inside its own netns (shop-api-97b69bf84-dplt6, node shop5-worker) ===
+IP: 10.244.254.9
+eth0@if29: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1480 qdisc noqueue state UP group default qlen 1000
+    link/ether 7a:42:1f:b1:db:94 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.244.254.9/32 scope global eth0
+default via 169.254.1.1 dev eth0   (Calico point-to-point /32 routing, no real L2 subnet)
+
+=== Paired veth on the node's root netns ===
+29: cali75a35ed66d4@if3  <- host-side end, peer index 3 matches the pod's own eth0 (ifindex 3 inside its netns)
+link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netns cni-45991c17-...
+
+=== Cross-node pod-to-pod connectivity test ===
+From inside shop-worker-79c7bd9fb5-hfhqj's network namespace (pod IP 10.244.76.198, running on node shop5-worker2)
+curl directly to shop-api-97b69bf84-dplt6's pod IP (10.244.254.9, running on node shop5-worker):
+
+  $ curl -s --max-time 4 -o /dev/null -w "HTTP %{http_code}\n" http://10.244.254.9:8080/health
+  HTTP 200
+
+Confirms: pods on different nodes reach each other directly by IP, no NAT, flat network
+(as expected pre-NetworkPolicy — this gets locked down starting Part 4).

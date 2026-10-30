@@ -1,0 +1,66 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "shop.fullname" . }}
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  groups:
+    # Lab 5's 3 required alerts — connections, traffic denied by policy, DNS
+    # health. See README Part 7 for the rationale behind each metric choice,
+    # including why "traffic denied by policy" is approximated rather than
+    # measured directly: OSS Calico (unlike Calico Enterprise or Cilium/
+    # Hubble) doesn't export a per-packet denied-connection counter, so we
+    # alert on the dataplane's own health instead — if Felix can't apply
+    # iptables rules, the zero-trust matrix isn't actually being enforced,
+    # which is the failure mode that matters most here.
+    - name: shop-network.rules
+      rules:
+        - alert: ShopPostgresConnectionsDropped
+          expr: |
+            sum(cnpg_backends_total{namespace="{{ .Release.Namespace }}", usename="{{ .Values.postgres.credentials.username }}"} or vector(0)) == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: No connections reaching Postgres
+            description: >-
+              cnpg_backends_total has been 0 for 2 minutes — either nothing is
+              talking to Postgres, or something (a NetworkPolicy misconfig is
+              the prime suspect in this lab) is silently blocking api/worker
+              from reaching it. See scripts/matrix-check.sh to confirm which.
+
+        - alert: ShopNetworkPolicyDataplaneDegraded
+          expr: |
+            sum(rate(felix_int_dataplane_failures{namespace="kube-system"}[5m])) > 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Calico is failing to apply dataplane updates
+            description: >-
+              felix_int_dataplane_failures is increasing — Felix can't
+              reliably program iptables/ipsets right now, which means the
+              zero-trust NetworkPolicy matrix may not actually be enforced
+              even though the policy objects themselves look correct.
+
+        - alert: ShopDNSErrorRateHigh
+          expr: |
+            (sum(rate(coredns_dns_responses_total{rcode!="NOERROR"}[5m])) or vector(0))
+            /
+            clamp_min(sum(rate(coredns_dns_responses_total[5m])), 0.001)
+            > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: CoreDNS error rate is high
+            description: >-
+              More than 5% of DNS responses are non-NOERROR (SERVFAIL/NXDOMAIN/…).
+              Services resolve each other by name — if DNS degrades, the whole
+              "Service survives pod chaos" story from Part 2 stops holding,
+              even though nothing about the Service/EndpointSlice path changed.
+{{- end }}

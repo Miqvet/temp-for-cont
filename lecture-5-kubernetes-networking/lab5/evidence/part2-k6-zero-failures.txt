@@ -1,0 +1,335 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: /scripts/load.js
+        output: json (/results/k6-results.jsonl)
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 2m0s max duration (incl. graceful stop):
+              * order_path: 10 looping VUs for 1m30s (gracefulStop: 30s)
+
+
+running (0m01.0s), 10/10 VUs, 10 complete and 0 interrupted iterations
+order_path   [   1% ] 10 VUs  0m01.0s/1m30s
+
+running (0m02.0s), 10/10 VUs, 33 complete and 0 interrupted iterations
+order_path   [   2% ] 10 VUs  0m02.0s/1m30s
+
+running (0m03.0s), 10/10 VUs, 60 complete and 0 interrupted iterations
+order_path   [   3% ] 10 VUs  0m03.0s/1m30s
+
+running (0m04.0s), 10/10 VUs, 81 complete and 0 interrupted iterations
+order_path   [   4% ] 10 VUs  0m04.0s/1m30s
+
+running (0m05.0s), 10/10 VUs, 102 complete and 0 interrupted iterations
+order_path   [   6% ] 10 VUs  0m05.0s/1m30s
+
+running (0m06.0s), 10/10 VUs, 123 complete and 0 interrupted iterations
+order_path   [   7% ] 10 VUs  0m06.0s/1m30s
+
+running (0m07.0s), 10/10 VUs, 147 complete and 0 interrupted iterations
+order_path   [   8% ] 10 VUs  0m07.0s/1m30s
+
+running (0m08.0s), 10/10 VUs, 171 complete and 0 interrupted iterations
+order_path   [   9% ] 10 VUs  0m08.0s/1m30s
+
+running (0m09.0s), 10/10 VUs, 194 complete and 0 interrupted iterations
+order_path   [  10% ] 10 VUs  0m09.0s/1m30s
+
+running (0m10.0s), 10/10 VUs, 213 complete and 0 interrupted iterations
+order_path   [  11% ] 10 VUs  0m10.0s/1m30s
+
+running (0m11.0s), 10/10 VUs, 232 complete and 0 interrupted iterations
+order_path   [  12% ] 10 VUs  0m11.0s/1m30s
+
+running (0m12.0s), 10/10 VUs, 254 complete and 0 interrupted iterations
+order_path   [  13% ] 10 VUs  0m12.0s/1m30s
+
+running (0m13.0s), 10/10 VUs, 276 complete and 0 interrupted iterations
+order_path   [  14% ] 10 VUs  0m13.0s/1m30s
+
+running (0m14.0s), 10/10 VUs, 292 complete and 0 interrupted iterations
+order_path   [  16% ] 10 VUs  0m14.0s/1m30s
+
+running (0m15.0s), 10/10 VUs, 306 complete and 0 interrupted iterations
+order_path   [  17% ] 10 VUs  0m15.0s/1m30s
+
+running (0m15.8s), 10/10 VUs, 321 complete and 0 interrupted iterations
+order_path   [  18% ] 10 VUs  0m16.0s/1m30s
+
+running (0m16.8s), 10/10 VUs, 334 complete and 0 interrupted iterations
+order_path   [  19% ] 10 VUs  0m17.0s/1m30s
+
+running (0m17.8s), 10/10 VUs, 348 complete and 0 interrupted iterations
+order_path   [  20% ] 10 VUs  0m18.0s/1m30s
+
+running (0m18.8s), 10/10 VUs, 362 complete and 0 interrupted iterations
+order_path   [  21% ] 10 VUs  0m19.0s/1m30s
+
+running (0m19.8s), 10/10 VUs, 376 complete and 0 interrupted iterations
+order_path   [  22% ] 10 VUs  0m20.0s/1m30s
+
+running (0m20.8s), 10/10 VUs, 389 complete and 0 interrupted iterations
+order_path   [  23% ] 10 VUs  0m21.0s/1m30s
+
+running (0m21.8s), 10/10 VUs, 401 complete and 0 interrupted iterations
+order_path   [  24% ] 10 VUs  0m22.0s/1m30s
+
+running (0m22.8s), 10/10 VUs, 416 complete and 0 interrupted iterations
+order_path   [  26% ] 10 VUs  0m23.0s/1m30s
+
+running (0m23.8s), 10/10 VUs, 429 complete and 0 interrupted iterations
+order_path   [  27% ] 10 VUs  0m24.0s/1m30s
+
+running (0m24.8s), 10/10 VUs, 443 complete and 0 interrupted iterations
+order_path   [  28% ] 10 VUs  0m25.0s/1m30s
+
+running (0m25.8s), 10/10 VUs, 454 complete and 0 interrupted iterations
+order_path   [  29% ] 10 VUs  0m26.0s/1m30s
+
+running (0m26.8s), 10/10 VUs, 469 complete and 0 interrupted iterations
+order_path   [  30% ] 10 VUs  0m27.0s/1m30s
+
+running (0m27.8s), 10/10 VUs, 482 complete and 0 interrupted iterations
+order_path   [  31% ] 10 VUs  0m28.0s/1m30s
+
+running (0m28.8s), 10/10 VUs, 493 complete and 0 interrupted iterations
+order_path   [  32% ] 10 VUs  0m29.0s/1m30s
+
+running (0m29.8s), 10/10 VUs, 509 complete and 0 interrupted iterations
+order_path   [  33% ] 10 VUs  0m30.0s/1m30s
+
+running (0m30.8s), 10/10 VUs, 519 complete and 0 interrupted iterations
+order_path   [  34% ] 10 VUs  0m31.0s/1m30s
+
+running (0m31.8s), 10/10 VUs, 533 complete and 0 interrupted iterations
+order_path   [  36% ] 10 VUs  0m32.0s/1m30s
+
+running (0m32.8s), 10/10 VUs, 545 complete and 0 interrupted iterations
+order_path   [  37% ] 10 VUs  0m33.0s/1m30s
+
+running (0m33.8s), 10/10 VUs, 558 complete and 0 interrupted iterations
+order_path   [  38% ] 10 VUs  0m34.0s/1m30s
+
+running (0m34.8s), 10/10 VUs, 570 complete and 0 interrupted iterations
+order_path   [  39% ] 10 VUs  0m35.0s/1m30s
+
+running (0m35.8s), 10/10 VUs, 584 complete and 0 interrupted iterations
+order_path   [  40% ] 10 VUs  0m36.0s/1m30s
+
+running (0m36.8s), 10/10 VUs, 597 complete and 0 interrupted iterations
+order_path   [  41% ] 10 VUs  0m37.0s/1m30s
+
+running (0m37.8s), 10/10 VUs, 609 complete and 0 interrupted iterations
+order_path   [  42% ] 10 VUs  0m38.0s/1m30s
+
+running (0m38.8s), 10/10 VUs, 624 complete and 0 interrupted iterations
+order_path   [  43% ] 10 VUs  0m39.0s/1m30s
+
+running (0m39.8s), 10/10 VUs, 636 complete and 0 interrupted iterations
+order_path   [  44% ] 10 VUs  0m40.0s/1m30s
+
+running (0m40.8s), 10/10 VUs, 648 complete and 0 interrupted iterations
+order_path   [  46% ] 10 VUs  0m41.0s/1m30s
+
+running (0m41.8s), 10/10 VUs, 658 complete and 0 interrupted iterations
+order_path   [  47% ] 10 VUs  0m42.0s/1m30s
+
+running (0m42.8s), 10/10 VUs, 670 complete and 0 interrupted iterations
+order_path   [  48% ] 10 VUs  0m43.0s/1m30s
+
+running (0m43.8s), 10/10 VUs, 683 complete and 0 interrupted iterations
+order_path   [  49% ] 10 VUs  0m44.0s/1m30s
+
+running (0m44.8s), 10/10 VUs, 695 complete and 0 interrupted iterations
+order_path   [  50% ] 10 VUs  0m45.0s/1m30s
+
+running (0m45.6s), 10/10 VUs, 705 complete and 0 interrupted iterations
+order_path   [  51% ] 10 VUs  0m46.0s/1m30s
+
+running (0m46.2s), 10/10 VUs, 719 complete and 0 interrupted iterations
+order_path   [  52% ] 10 VUs  0m47.0s/1m30s
+
+running (0m47.2s), 10/10 VUs, 732 complete and 0 interrupted iterations
+order_path   [  53% ] 10 VUs  0m48.0s/1m30s
+
+running (0m48.2s), 10/10 VUs, 746 complete and 0 interrupted iterations
+order_path   [  54% ] 10 VUs  0m49.0s/1m30s
+
+running (0m49.2s), 10/10 VUs, 755 complete and 0 interrupted iterations
+order_path   [  56% ] 10 VUs  0m50.0s/1m30s
+
+running (0m50.2s), 10/10 VUs, 768 complete and 0 interrupted iterations
+order_path   [  57% ] 10 VUs  0m51.0s/1m30s
+
+running (0m51.2s), 10/10 VUs, 780 complete and 0 interrupted iterations
+order_path   [  58% ] 10 VUs  0m52.0s/1m30s
+
+running (0m52.2s), 10/10 VUs, 791 complete and 0 interrupted iterations
+order_path   [  59% ] 10 VUs  0m53.0s/1m30s
+
+running (0m53.2s), 10/10 VUs, 809 complete and 0 interrupted iterations
+order_path   [  60% ] 10 VUs  0m54.0s/1m30s
+
+running (0m54.2s), 10/10 VUs, 827 complete and 0 interrupted iterations
+order_path   [  61% ] 10 VUs  0m55.0s/1m30s
+
+running (0m55.2s), 10/10 VUs, 846 complete and 0 interrupted iterations
+order_path   [  62% ] 10 VUs  0m56.0s/1m30s
+
+running (0m56.2s), 10/10 VUs, 862 complete and 0 interrupted iterations
+order_path   [  63% ] 10 VUs  0m57.0s/1m30s
+
+running (0m57.2s), 10/10 VUs, 878 complete and 0 interrupted iterations
+order_path   [  64% ] 10 VUs  0m58.0s/1m30s
+
+running (0m58.2s), 10/10 VUs, 897 complete and 0 interrupted iterations
+order_path   [  66% ] 10 VUs  0m59.0s/1m30s
+
+running (0m59.2s), 10/10 VUs, 913 complete and 0 interrupted iterations
+order_path   [  67% ] 10 VUs  1m00.0s/1m30s
+
+running (1m00.2s), 10/10 VUs, 930 complete and 0 interrupted iterations
+order_path   [  68% ] 10 VUs  1m01.0s/1m30s
+
+running (1m01.2s), 10/10 VUs, 941 complete and 0 interrupted iterations
+order_path   [  69% ] 10 VUs  1m02.0s/1m30s
+
+running (1m02.2s), 10/10 VUs, 953 complete and 0 interrupted iterations
+order_path   [  70% ] 10 VUs  1m03.0s/1m30s
+
+running (1m03.2s), 10/10 VUs, 966 complete and 0 interrupted iterations
+order_path   [  71% ] 10 VUs  1m04.0s/1m30s
+
+running (1m04.2s), 10/10 VUs, 974 complete and 0 interrupted iterations
+order_path   [  72% ] 10 VUs  1m05.0s/1m30s
+
+running (1m05.2s), 10/10 VUs, 985 complete and 0 interrupted iterations
+order_path   [  73% ] 10 VUs  1m06.0s/1m30s
+
+running (1m06.2s), 10/10 VUs, 998 complete and 0 interrupted iterations
+order_path   [  74% ] 10 VUs  1m07.0s/1m30s
+
+running (1m07.2s), 10/10 VUs, 1009 complete and 0 interrupted iterations
+order_path   [  76% ] 10 VUs  1m08.0s/1m30s
+
+running (1m08.2s), 10/10 VUs, 1022 complete and 0 interrupted iterations
+order_path   [  77% ] 10 VUs  1m09.0s/1m30s
+
+running (1m09.2s), 10/10 VUs, 1035 complete and 0 interrupted iterations
+order_path   [  78% ] 10 VUs  1m10.0s/1m30s
+
+running (1m10.2s), 10/10 VUs, 1048 complete and 0 interrupted iterations
+order_path   [  79% ] 10 VUs  1m11.0s/1m30s
+
+running (1m11.2s), 10/10 VUs, 1059 complete and 0 interrupted iterations
+order_path   [  80% ] 10 VUs  1m12.0s/1m30s
+
+running (1m12.2s), 10/10 VUs, 1069 complete and 0 interrupted iterations
+order_path   [  81% ] 10 VUs  1m13.0s/1m30s
+
+running (1m13.2s), 10/10 VUs, 1082 complete and 0 interrupted iterations
+order_path   [  82% ] 10 VUs  1m14.0s/1m30s
+
+running (1m14.2s), 10/10 VUs, 1094 complete and 0 interrupted iterations
+order_path   [  83% ] 10 VUs  1m15.0s/1m30s
+
+running (1m15.1s), 10/10 VUs, 1105 complete and 0 interrupted iterations
+order_path   [  84% ] 10 VUs  1m16.0s/1m30s
+
+running (1m16.1s), 10/10 VUs, 1114 complete and 0 interrupted iterations
+order_path   [  86% ] 10 VUs  1m17.0s/1m30s
+
+running (1m17.1s), 10/10 VUs, 1123 complete and 0 interrupted iterations
+order_path   [  87% ] 10 VUs  1m18.0s/1m30s
+
+running (1m18.1s), 10/10 VUs, 1134 complete and 0 interrupted iterations
+order_path   [  88% ] 10 VUs  1m19.0s/1m30s
+
+running (1m19.1s), 10/10 VUs, 1148 complete and 0 interrupted iterations
+order_path   [  89% ] 10 VUs  1m20.0s/1m30s
+
+running (1m20.1s), 10/10 VUs, 1159 complete and 0 interrupted iterations
+order_path   [  90% ] 10 VUs  1m21.0s/1m30s
+
+running (1m21.1s), 10/10 VUs, 1172 complete and 0 interrupted iterations
+order_path   [  91% ] 10 VUs  1m22.0s/1m30s
+
+running (1m22.1s), 10/10 VUs, 1182 complete and 0 interrupted iterations
+order_path   [  92% ] 10 VUs  1m23.0s/1m30s
+
+running (1m23.1s), 10/10 VUs, 1192 complete and 0 interrupted iterations
+order_path   [  93% ] 10 VUs  1m24.0s/1m30s
+
+running (1m24.1s), 10/10 VUs, 1206 complete and 0 interrupted iterations
+order_path   [  94% ] 10 VUs  1m25.0s/1m30s
+
+running (1m25.1s), 10/10 VUs, 1218 complete and 0 interrupted iterations
+order_path   [  96% ] 10 VUs  1m26.0s/1m30s
+
+running (1m26.1s), 10/10 VUs, 1226 complete and 0 interrupted iterations
+order_path   [  97% ] 10 VUs  1m27.0s/1m30s
+
+running (1m27.1s), 10/10 VUs, 1240 complete and 0 interrupted iterations
+order_path   [  98% ] 10 VUs  1m28.0s/1m30s
+
+running (1m28.1s), 10/10 VUs, 1252 complete and 0 interrupted iterations
+order_path   [  99% ] 10 VUs  1m29.0s/1m30s
+
+running (1m29.1s), 10/10 VUs, 1262 complete and 0 interrupted iterations
+order_path   [ 100% ] 10 VUs  1m30.0s/1m30s
+
+     ✓ order created (201)
+     ✓ orders listed (200)
+
+     checks.........................: 100.00% 2544 out of 2544
+     data_received..................: 692 MB  7.7 MB/s
+     data_sent......................: 307 kB  3.4 kB/s
+     http_req_blocked...............: avg=444.71µs min=2.63µs   med=9.88µs   max=1.02s    p(90)=14.01µs  p(95)=16.14µs 
+     http_req_connecting............: avg=412.7µs  min=0s       med=0s       max=1.02s    p(90)=0s       p(95)=0s      
+   ✗ http_req_duration..............: avg=251.76ms min=159.31µs med=187.8ms  max=1.5s     p(90)=604.81ms p(95)=800.8ms 
+       { expected_response:true }...: avg=251.76ms min=159.31µs med=187.8ms  max=1.5s     p(90)=604.81ms p(95)=800.8ms 
+     http_req_failed................: 0.00%   0 out of 2544
+     http_req_receiving.............: avg=6.38ms   min=43.81µs  med=523.2µs  max=408.12ms p(90)=3.63ms   p(95)=10.96ms 
+     http_req_sending...............: avg=57.11µs  min=10.16µs  med=37.06µs  max=1.31ms   p(90)=104.34µs p(95)=126.73µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=245.32ms min=0s       med=186.13ms max=1.5s     p(90)=602.78ms p(95)=715.1ms 
+     http_reqs......................: 2544    28.320785/s
+     iteration_duration.............: avg=710.8ms  min=224.38ms med=692.12ms max=1.9s     p(90)=1.11s    p(95)=1.29s   
+     iterations.....................: 1272    14.160393/s
+     vus............................: 10      min=10           max=10
+     vus_max........................: 10      min=10           max=10
+
+
+running (1m29.8s), 00/10 VUs, 1272 complete and 0 interrupted iterations
+order_path ✓ [ 100% ] 10 VUs  1m30s
+time="2026-10-29T21:06:59Z" level=error msg="thresholds on metrics 'http_req_duration' have been crossed"
+
+=== Context ===
+Chaos: scripts/chaos.sh killed 19 random api/worker pods over the same 100s window
+(see evidence/part2-chaos-log.txt).
+Client: k6 load.js, 10 VUs, 90s, hitting http://shop-api (ClusterIP by DNS name,
+NOT a pod IP, NOT the NodePort) from inside the cluster.
+
+First attempt (before the preStop fix) showed 5/5686 requests failing (0.08%) —
+traced to the api's SIGTERM handling: server.Shutdown() closes the HTTP listener
+immediately, but the readiness probe (same /health endpoint) only gets re-checked
+every periodSeconds, so kube-proxy/EndpointSlice has a brief window where it still
+routes to a pod whose port is already closed. Added a `lifecycle.preStop.exec`
+hook (`sleep 5`) to api/worker deployments so the pod keeps serving during the
+window the readiness probe needs to notice SIGTERM and pull it from the Service
+*before* the listener actually closes. Rerun after the fix: 0/2544 failed.
+
+=== Rerun for the Grafana screenshot (same flat-network setup, policy still disabled) ===
+18 pods killed over 90s, 7/1822 requests failed (0.38%) — "connection refused" /
+"connection reset by peer" against the ClusterIP, same category as the original
+pre-fix failures. The preStop fix (README Part 2) clearly helps — our best
+recorded run was a clean 0/2544 — but it narrows the race window, it doesn't
+provably eliminate it: kube-proxy/EndpointSlice propagation is eventually
+consistent, not instantaneous, and under aggressive enough chaos a small
+residual failure rate (tenths of a percent) can still show up. Documenting
+both runs rather than only the perfect one.

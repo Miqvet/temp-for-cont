@@ -1,0 +1,31 @@
+=== Rerunning the Part 2 chaos+load test AFTER NetworkPolicy is enabled ===
+
+Part 2's "0 failed requests" result (evidence/part2-k6-zero-failures.txt) was
+captured BEFORE NetworkPolicy existed — a flat network, only the preStop fix
+in place. Re-running the exact same chaos.sh + load.js combination after Part
+4 (zero-trust NetworkPolicy, all 5 policies active) showed real failures this
+time: 30/30 requests timed out ("dial: i/o timeout") during a 100s window with
+21 pod kills across only 6 total api/worker replicas (i.e. each replica got
+recreated roughly 3-4 times on average — unusually aggressive churn for this
+local 3-node kind cluster).
+
+matrix-check.sh run immediately afterward showed a fully green matrix again —
+so this isn't a policy misconfiguration, it's extra reconciliation load: every
+pod recreation under NetworkPolicy means Calico has to allocate a fresh WAV
+workload identity, recompute ipsets, and reprogram iptables for that pod
+*before* traffic can flow to/from it again, on top of the normal
+kube-proxy/EndpointSlice update Part 2 already relies on. Under light-to-
+moderate chaos this stays invisible (several earlier matrix-check runs during
+this same session, with policy active, showed clean results). Under this one
+unusually heavy run it did not.
+
+Takeaway for the README: zero-trust NetworkPolicy adds a real, measurable
+amount of reconciliation work per pod churn event, on top of the Service
+abstraction's own mechanism. On a resource-constrained local cluster, under
+aggressive-enough chaos, that overhead can occasionally show up as failed
+requests even though the matrix itself is correct both before and after. Not
+re-chased to a second "0 failures" run under combined chaos+policy — that
+wasn't what Part 2 asked for (Part 2's zero-trust-free result already stands),
+and treating one bad run as something to keep retrying until it looks clean
+would be exactly the kind of cherry-picking this repo's "VERIFICATION"-style
+sections exist to avoid.

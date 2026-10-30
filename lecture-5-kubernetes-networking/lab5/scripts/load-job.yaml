@@ -1,0 +1,42 @@
+# Runs scripts/load.js as an in-cluster Job, targeting the shop-api Service by
+# DNS name (not a pod IP, not NodePort) — per lab.md Part 2, this is what
+# proves continuity depends on Service/EndpointSlice/kube-proxy/DNS, not on
+# any one pod surviving. Traffic from inside the cluster goes through the
+# normal Service path and gets load-balanced across whatever api replicas are
+# alive at that moment, even while scripts/chaos.sh is killing them.
+#
+# The k6-load-script ConfigMap is (re)created separately before applying:
+#   kubectl -n shop5 create configmap k6-load-script --from-file=load.js=scripts/load.js --dry-run=client -o yaml | kubectl apply -f -
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-load
+  namespace: shop5
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6:0.54.0
+          command: ["k6", "run", "--out", "json=/results/k6-results.jsonl", "/scripts/load.js"]
+          env:
+            - name: BASE_URL
+              value: http://shop-api
+            - name: VUS
+              value: "10"
+            - name: DURATION
+              value: "90s"
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+            - name: results
+              mountPath: /results
+      volumes:
+        - name: script
+          configMap:
+            name: k6-load-script
+        - name: results
+          emptyDir: {}

@@ -1,0 +1,9 @@
+=== Access matrix: expected vs actual ===
+external client -> api via NodePort (shop5-control-plane) expected=ALLOWED    actual=ALLOWED (200)
+external client -> api via NodePort (shop5-worker) expected=ALLOWED    actual=ALLOWED (200)
+external client -> api via NodePort (shop5-worker2) expected=ALLOWED    actual=ALLOWED (200)
+api -> postgres                expected=ALLOWED    actual=ALLOWED (tcp connect ok)
+worker -> postgres             expected=ALLOWED    actual=ALLOWED (tcp connect ok)
+api -> worker (not in matrix)  expected=DENIED     actual=DENIED
+stray pod -> postgres          expected=DENIED     actual=DENIED (tcp connect failed/timed out)
+stray pod -> api (in-cluster, NOT the external client) expected=DENIED     actual=DENIED

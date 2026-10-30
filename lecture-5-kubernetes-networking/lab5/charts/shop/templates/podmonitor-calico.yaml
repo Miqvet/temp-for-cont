@@ -1,0 +1,28 @@
+{{- if .Values.monitoring.enabled }}
+# Felix (calico-node) doesn't sit behind a Service and declares no named
+# container port for its metrics listener, so a PodMonitor (by portNumber,
+# not a ServiceMonitor) is the only way to scrape it. See README Part 7 for
+# why this gives us dataplane-health signals (iptables rule counts, apply
+# failures) rather than a per-packet "denied by policy" counter — OSS Calico
+# doesn't expose the latter at all, that's a Calico Enterprise flow-logs
+# feature, not something this chart can add.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "shop.fullname" . }}-calico-felix
+  labels:
+    {{- include "shop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  selector:
+    matchLabels:
+      k8s-app: calico-node
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.monitoring.interval }}
+{{- end }}

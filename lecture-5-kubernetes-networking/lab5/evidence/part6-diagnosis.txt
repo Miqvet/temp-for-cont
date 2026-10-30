@@ -1,0 +1,49 @@
+=== Symptom (matrix-check.sh right after the fault) ===
+worker -> postgres    expected=ALLOWED   actual=DENIED (tcp connect failed/timed out)
+(everything else in the matrix still green — client->api and api->postgres both fine,
+ so this is NOT a total outage, just one specific path silently broken: exactly the
+ "orders stop going through" scenario from lab.md, since worker is what actually
+ processes orders against postgres.)
+
+=== Step 1: inspect the declarative NetworkPolicy ===
+$ kubectl -n shop5 get networkpolicy shop-allow-ingress-to-postgres -o yaml
+
+  ingress:
+  - from:
+    - podSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - api
+          - worker-typo        <-- real worker pods are labelled "worker", not "worker-typo"
+    ports:
+    - port: 5432
+
+$ kubectl -n shop5 get pods -l app.kubernetes.io/name=worker --show-labels
+  app.kubernetes.io/name=worker   (confirms the real label)
+
+=== Step 2: confirm it's actually enforced that way, not just a YAML typo that
+might not matter (Calico's real diagnostic tool: the computed ipset at the
+dataplane layer, inspected from inside the calico-node pod) ===
+
+$ kubectl -n kube-system exec calico-node-58dmc -c calico-node -- ipset list -n
+  cali40s:4ezmsJMsHwlzgOyl1ateGY0   <- postgres pod's own IP (the policy's podSelector)
+  cali40s:eb9Pcvp4Wd3M0HblyBwkTtI   <- the computed "allowed source" set
+
+$ ipset list cali40s:eb9Pcvp4Wd3M0HblyBwkTtI
+  Members:
+  10.244.76.240   (api)
+  10.244.254.34   (api)
+  10.244.76.244   (api)
+  10.244.254.36   (api)
+  -- zero worker IPs (10.244.254.39, 10.244.76.243) present --
+
+This is the smoking gun: Calico's own computed "who may ingress to postgres" set
+contains exactly the 4 api pod IPs and none of the 2 worker pod IPs. Not a guess
+from reading YAML — the actual enforced set, inspected directly.
+
+=== Fix ===
+Reverted networkPolicy.fault.inject to "none" (scripts/fix-fault.sh), which
+restores the real label "worker" in the ingress-to-postgres policy's selector.
+Matrix re-checked fully green afterward (evidence/part6-matrix-after-fix.txt).

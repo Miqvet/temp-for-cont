@@ -1,0 +1,25 @@
+job.batch "k6-load" deleted
+job.batch/k6-load created
+chaos: killing a random api/worker pod every 3-6s for 100s in ns/shop5
+00:05:08 killing pod: shop-api-7d49958658-2mlth
+00:05:12 killing pod: shop-api-7d49958658-fz9bq
+00:05:16 killing pod: shop-worker-69dc69c849-qg2bw
+00:05:23 killing pod: shop-worker-69dc69c849-cd6mf
+00:05:29 killing pod: shop-api-7d49958658-79b5x
+00:05:35 killing pod: shop-worker-69dc69c849-f6wns
+00:05:39 killing pod: shop-api-7d49958658-wdxtg
+00:05:44 killing pod: shop-worker-69dc69c849-j8q9n
+00:05:51 killing pod: shop-worker-69dc69c849-89msz
+00:05:58 killing pod: shop-worker-69dc69c849-frbhl
+00:06:02 killing pod: shop-worker-69dc69c849-g4c9m
+00:06:06 killing pod: shop-api-7d49958658-7vd9f
+00:06:11 killing pod: shop-worker-69dc69c849-9wbfg
+00:06:16 killing pod: shop-api-7d49958658-wm4fg
+00:06:20 killing pod: shop-worker-69dc69c849-dbngl
+00:06:26 killing pod: shop-api-7d49958658-58bwp
+00:06:29 killing pod: shop-worker-69dc69c849-zpfgk
+00:06:35 killing pod: shop-api-7d49958658-znvrn
+00:06:42 killing pod: shop-worker-69dc69c849-8brbk
+chaos done: killed 19 pods over 100s
+
+[exited with code 0]
